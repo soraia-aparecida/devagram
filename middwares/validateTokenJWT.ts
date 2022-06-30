@@ -13,19 +13,15 @@ export const validateTokenJWT = (handler: NextApiHandler) => (
     try {
         const jwtKey = process.env.JWT_KEY
         if (!jwtKey) {
-            console.log("aqui1")
             return res.status(500).json({ error: "EXPIRES_IN não informado." })
         }
 
         if (!req || !req.headers) {
-            console.log("aqui2")
             return res.status(400).json({ error: "Não foi possível validar o token." })
         }
 
 
         if (req.method !== "OPTIONS") {
-            console.log("aqui3")
-
             const authorization = req.headers['authorization']
             if (!authorization) {
                 return res.status(400).json({ error: "Não foi possível validar o token." })

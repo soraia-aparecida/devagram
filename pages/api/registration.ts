@@ -5,13 +5,13 @@ import type { StandardtMessageReply } from '../../types/StandardtMessageReply';
 import { UserModel } from '../../models/UserModel';
 import { HasManager } from "../../services/HashManager";
 import nc from 'next-connect';
-import { updload, uploadImageCosmic } from '../../services/uploadImageCosmic';
+import { upload, uploadImageCosmic } from '../../services/uploadImageCosmic';
 
 const hasManager = new HasManager()
 
 const handler = nc()
     // a forma como o next-connet usar para as requisições.
-    .use(updload.single('file'))
+    .use(upload.single('file'))
     .post(async (req: NextApiRequest, res: NextApiResponse<StandardtMessageReply | any>) => {
 
         try {
@@ -52,7 +52,6 @@ const handler = nc()
             return res.status(201).json({ message: "Usuário cadastrado com sucesso!" })
 
         } catch (error) {
-            console.log(error)
             return res.status(500).json({ error: "Error ao cadastrar usuário" })
         }
     });

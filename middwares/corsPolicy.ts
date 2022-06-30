@@ -13,7 +13,6 @@ export const corsPolicy = (handler : NextApiHandler) =>
 
         return handler(req, res);
     }catch(e){
-        console.log('Erro ao tratar a politica de CORS:', e);
         return res.status(500).json({error : 'Ocorreu erro ao tratar a politica de CORS'});
     }
 }
