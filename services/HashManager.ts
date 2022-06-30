@@ -1,5 +1,4 @@
 import * as bycript from 'bcryptjs'
-import { sendRenderResult } from 'next/dist/server/send-payload'
 
 export class HasManager {
 

@@ -32,7 +32,7 @@ const endpointLogin = async (
 
         const checkExistenceUser = await UserModel.find({ email: login })
 
-        if (!checkExistenceUser) {
+        if (!checkExistenceUser[0]) {
             return res.status(404).json({ error: "Email não cadastrado em nosso banco de dados." })
         }
 
@@ -45,7 +45,7 @@ const endpointLogin = async (
         // Gerar token
         const payload: AuthenticationData = { id: checkExistenceUser[0]._id }
 
-        const token = jwt.sign(payload, jwtKey)
+        const token = jwt.sign(payload, jwtKey, {expiresIn})
 
         return res.status(200).json(token)
     }

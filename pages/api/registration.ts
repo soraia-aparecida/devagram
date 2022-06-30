@@ -4,49 +4,69 @@ import type { RequestRegistration } from '../../types/RequestRegistration';
 import type { StandardtMessageReply } from '../../types/StandardtMessageReply';
 import { UserModel } from '../../models/UserModel';
 import { HasManager } from "../../services/HashManager";
+import nc from 'next-connect';
+import { updload, uploadImageCosmic } from '../../services/uploadImageCosmic';
 
 const hasManager = new HasManager()
 
-const endpointRegistration = async (
-    req: NextApiRequest,
-    res: NextApiResponse<StandardtMessageReply>
-) => {
+const handler = nc()
+    // a forma como o next-connet usar para as requisições.
+    .use(updload.single('file'))
+    .post(async (req: NextApiRequest, res: NextApiResponse<StandardtMessageReply | any>) => {
 
-    if (req.method === "POST") {
-        const user: RequestRegistration = req.body
+        try {
+            const user = req.body as RequestRegistration
 
-        if (!user.name || !user.password || !user.email) {
-            return res.status(422).json({ error: "Para realizar o cadastro de um novo usuário é necessário informar os seguintes campos: name, email, password." })
+            if (!user.name || !user.password || !user.email) {
+                return res.status(422).json({ error: "Para realizar o cadastro de um novo usuário é necessário informar os seguintes campos: name, email, password." })
+            };
+
+            if (!user.email.includes('@') || !user.email.includes('.com')) {
+                return res.status(422).json({ error: "Email invalido" })
+            };
+
+            if (user.password.length < 6) {
+                return res.status(422).json({ error: "A senha deve conter no mímino 6 caracteres." })
+            };
+
+            const checkExistenceOfEmail = await UserModel.find({ email: user.email })
+
+            if (checkExistenceOfEmail && checkExistenceOfEmail.length > 0) {
+                return res.status(409).json({ error: "E-mail já cadastrado no nosso banco de dados." })
+            };
+
+            const encryptedPassword = await hasManager.generateHash(user.password);
+
+            // enviar a imagem do multer parao cosmic
+            const image = await uploadImageCosmic(req);
+
+            const userToBeSaved = {
+                name: user.name,
+                email: user.email,
+                password: encryptedPassword,
+                avatar: image?.media?.url
+            };
+
+            await UserModel.create(userToBeSaved)
+
+            return res.status(201).json({ message: "Usuário cadastrado com sucesso!" })
+
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({ error: "Error ao cadastrar usuário" })
         }
+    });
 
-        if (!user.email.includes('@') || !user.email.includes('.com')) {
-            return res.status(422).json({ error: "Email invalido" })
-        }
+//O next por padrão converte tudo para json, mas agora usando o cosmic, não queremos mais isso. 
+//Vamos export uma config, quando exportamos esse config, significa que queremos mudar algo nela
 
-        if (user.password.length < 6) {
-            return res.status(422).json({ error: "A senha deve conter no mímino 6 caracteres." })
-        }
+export const config = {
+    // vamos mudar a configuração de api, para que o bodyParse seja false.
 
-        const checkExistenceOfEmail = await UserModel.find({ email: user.email })
-
-        if (checkExistenceOfEmail && checkExistenceOfEmail.length > 0) {
-            return res.status(409).json({ error: "E-mail já cadastrado no nosso banco de dados." })
-        }
-
-        const encryptedPassword = await hasManager.generateHash(user.password)
-
-        const userToBeSaved = {
-            name: user.name,
-            email: user.email,
-            password: encryptedPassword
-        }
-
-        await UserModel.create(userToBeSaved)
-
-        return res.status(201).json({ message: "Usuário cadastrado com sucesso!" })
+    api: {
+        // Quando o body parse está true, ele transforma tudo em json.
+        bodyParser: false
     }
-
-    return res.status(405).json({ error: "Metodo informado não é válido" })
 }
 
-export default conectarMongoDB(endpointRegistration)
+export default conectarMongoDB(handler);
