@@ -6,6 +6,7 @@ import nc from 'next-connect';
 import { upload, uploadImageCosmic } from '../../services/uploadImageCosmic';
 import { PublicationModel } from '../../models/PublicationModel'
 import { UserModel } from "../../models/UserModel";
+import { corsPolicy } from "../../middwares/corsPolicy";
 
 const handler = nc()
     .use(upload.single('file'))
@@ -15,7 +16,7 @@ const handler = nc()
             const { userId } = req.query
             const user = await UserModel.findById(userId)
 
-            if (!user && user.length < 1) {
+            if (!user) {
                 return res.status(400).json({ error: "Usuário não encontrado." })
             };
 
@@ -42,6 +43,9 @@ const handler = nc()
                 date: new Date()
             };
 
+            user.publications++;
+            await UserModel.findByIdAndUpdate({ _id: user._id }, user);
+
             await PublicationModel.create(publicationToBeSaved);
 
             return res.status(201).json({ message: "Publicação criado com sucesso!" });
@@ -57,4 +61,4 @@ export const config = {
     }
 };
 
-export default validateTokenJWT(conectarMongoDB(handler));
+export default corsPolicy(validateTokenJWT(conectarMongoDB(handler)));

@@ -2,10 +2,10 @@ import mongoose, { Schema } from "mongoose";
 
 // Modelando nossa tabela para o DB.
 const UserSchema = new Schema({
-    name: { type: String, require: true },
-    password: { type: String, requeri: true },
-    email: { type: String, requeri: true },
-    avatar: { type: String, requeri: false },
+    name: { type: String, required: true },
+    password: { type: String, required: true },
+    email: { type: String, required: true },
+    avatar: { type: String, required: false },
     following: { type: Number, default: 0 }, // seguindo
     followers: { type: Number, default: 0 }, // seguidores
     publications: { type: Number, default: 0 }, // pubicações

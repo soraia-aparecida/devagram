@@ -6,6 +6,7 @@ import { UserModel } from '../../models/UserModel';
 import { HasManager } from "../../services/HashManager";
 import nc from 'next-connect';
 import { upload, uploadImageCosmic } from '../../services/uploadImageCosmic';
+import { corsPolicy } from "../../middwares/corsPolicy";
 
 const hasManager = new HasManager()
 
@@ -68,4 +69,4 @@ export const config = {
     }
 }
 
-export default conectarMongoDB(handler);
+export default corsPolicy(conectarMongoDB(handler));

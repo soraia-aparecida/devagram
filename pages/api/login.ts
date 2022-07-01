@@ -5,6 +5,7 @@ import { UserModel } from '../../models/UserModel'
 import { HasManager } from "../../services/HashManager";
 import * as jwt from 'jsonwebtoken';
 import { AuthenticationData } from '../../models/AutheticationData';
+import { corsPolicy } from '../../middwares/corsPolicy';
 
 const hasManager = new HasManager()
 
@@ -45,7 +46,7 @@ const endpointLogin = async (
         // Gerar token
         const payload: AuthenticationData = { id: checkExistenceUser[0]._id }
 
-        const token = jwt.sign(payload, jwtKey, {expiresIn})
+        const token = jwt.sign(payload, jwtKey, { expiresIn })
 
         return res.status(200).json(token)
     }
@@ -53,4 +54,4 @@ const endpointLogin = async (
     return res.status(405).json({ error: "Metodo informado não é válido" })
 }
 
-export default conectarMongoDB(endpointLogin)
+export default corsPolicy(conectarMongoDB(endpointLogin));

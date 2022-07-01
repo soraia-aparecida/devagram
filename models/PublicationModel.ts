@@ -2,12 +2,12 @@ import mongoose, { Schema } from "mongoose";
 
 // Modelando nossa tabela para o DB.
 const PublicationSchema = new Schema({
-    idUser: { type: String, require: true },
-    descripition: { type: String, require: true },
-    photo: { type: String, require: true },
-    date: { type: Date, require: true },
-    likes: { type: Array, require: true, default: [] },
-    comments: { type: Array, require: true, default: [] },
+    idUser: { type: String, required: true },
+    descripition: { type: String, required: true },
+    photo: { type: String, required: true },
+    date: { type: Date, required: true },
+    likes: { type: Array, required: true, default: [] },
+    comments: { type: Array, required: true, default: [] },
 });
 
 // Ele vai pegar nossa tabela no DB, e veririficar se a tabela users existe, 
